@@ -1,11 +1,22 @@
+body{
+    margin: 0px;
+    padding: 0px;
+}
 ul{
 list-style-type:none;
-margin:0;
-padding:0;
+padding:auto;
+margin: auto;
+text-align: center;
 }
 li{
 display:inline;
+margin-right: 10%;
 }
 a{
-    text-decoration: none
+    text-decoration: none;
+    font-size: 40px;
+    color:#999
+}
+a:hover{
+    color: #b4a078
 }
