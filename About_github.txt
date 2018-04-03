@@ -1,0 +1,14 @@
+$ git config --global user.name "Your Name"
+
+$ git config --global user.email "email@example.com"
+
+$git add +文件名字 （包括类型）
+
+$git commit -m "(里面加描述)"
+
+$ git remote add origin git@github.com:LookWhatYouMMD/mypage.git(连接远程库)
+
+$ git push origin master（上传！！）
+
+
+git退回上一级文件夹目录的方法：.. \<!--注意..后面有空格-->
