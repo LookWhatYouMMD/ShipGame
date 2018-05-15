@@ -1,0 +1,7 @@
+#board{
+    position: relative;
+    width:1024px;
+    height: 863;
+    margin: auto;
+    background: url(image/board.jpg);
+}
