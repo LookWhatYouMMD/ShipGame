@@ -1,29 +1,168 @@
-var location1 = 3;
-var location2 = 4;
-var location3 = 5;
-var guess;
-var hits = 0;
-var guesses = 0;
-var isSunk = false;
-while(isSunk == false){
-    guess = prompt("Ready,aim,fire! (enter a number from 0-6):")
-    if (guess < 0 || guess > 6){
-        alert("Please enter a valid cell number!");
+var view = {
+    displayMessage: function(msg){
+        var messageArea = document.getElementById("messageArea");
+        messageArea.innerHTML = msg;
+    },
+    displayHit: function(location){
+        var cell = document.getElementById(location);
+        cell.setAttribute("class","hit");
+    },
+    displayMiss: function(location){
+        var cell = document.getElementById(location);
+        cell.setAttribute("class", "miss");
     }
-        else{
-            guesses++
-            if(guess == location1 || guess == location2 || guess == location3){
-                hits = hits + 1;
-                if(hits == 3){
-                    isSunk = true
-                    alert("You sank my battleship!")
+}
+
+view.displayMessage("Tap tap,is this thing on?");
+
+var model = {
+        boardSize: 7,
+        numShips: 3,
+        shipLength: 3,
+        shipsSunk: 0,
+
+    ships: [{locations:[0,0,0],hits: ["","",""]},
+            {locations:[0,0,0],hits: ["","",""]},
+            {locations:[0,0,0],hits: ["","",""]}],//战舰的位置
+
+    fire: function(guess) {
+        for (var i = 0; i < this.numShips; i++){
+            var ship = this.ships[i];
+            var index = ship.locations.indexOf(guess);
+            //利用串接的方式，把 var loartions = ship.locations; var index = locations.indexOf(guess)合并如上,方便获取guess的索引
+            if (ship.hits[index] === "hit") {
+				view.displayMessage("Oops, you already hit that location!");
+				return true;
+            } 
+            else if (index >= 0) {
+				ship.hits[index] = "hit";
+				view.displayHit(guess);
+                view.displayMessage("HIT!");
+                
+                if (this.isSunk(ship)) {
+                    view.displayMessage("You sank my battleship!");
+                    this.shipsSunk++;
                 }
+                return true;
+            }
+        }
+        view.displayMiss(guess);
+        view.displayMessage("You missed.");
+        return false;
+    },   //获取ship的位置
+
+    isSunk: function(ship){
+        for (var i = 0; i < this.shipLength ; i++){
+            if (ship.hit[i] !== "hit"){
+                return false;
+            }
+        }
+        return true;
+    },
+
+    generateShip: function(){
+        var direction = Math.floor(Math.random() * 2);
+        var row, col;
+        if (direction === 1){
+            row = Math.floor(Math.random() * this.boardSize);
+            col = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
+        }
+        else{
+            row = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
+            col = Math.floor(Math.random() * this.boardSize);
+        }
+        var newShipLocations = [];
+        for (var i = 0; i< this.shipLength; i++){
+            if (direction === 1){
+                newShipLocations.push(row + "" + (col + i));
             }
             else{
-                alert("Miss")
+                newShipLocations.push((row + i) + "" + col);
+            }
+        }
+        return newShipLocations;
+    },
+
+    generateShipLocations: function() {
+        var locations;
+        for (var i = 0; i < this.numShips; i++){
+            do{
+                locations = this.generateShip();
+            }
+            while(this.collision(locations));
+            this.ships[i].locations = locations;
+        }
+    },
+
+    collision: function(locations){
+        for (var i = 0; i < this.numShips; i++){
+            var ship = this.ships[i];
+            for (var j = 0; j < locations.length; j++){
+                if (ship.locations.indexOf(locations[j]) >= 0){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+
+var controller = {                    //控制器
+    guesses: 0,
+    processGuess: function(guess){
+        var location = parseGuess(guess);
+        if (location){
+            model.guesses++;
+            var hit = model.fire(location);
+            if (hit && model.shipsSunk === model.numShips){
+                view.displayMessage("You sank all my battleships, in" + this.guesses + "guesses");
             }
         }
     }
-var stats = "You took" + guesses + " guesses to sink the battleship," 
-+"which means your shooting accuracy was " +(3/guesses);
-alert(stats);
+};
+
+function parseGuess(guess){
+    var alphabet = ["A", "B", "C", "D", "E", "F", "G"];
+    if(guess === null || guess.length !== 2){
+        alert("Oops, please enter a letter and a number on the board.")
+    }
+    else{
+        var firstChar = guess.charAt(0);
+        var row = alphabet.indexOf(firstChar);
+        var column = guess.charAt(1);
+        if (isNaN(row) || isNaN(column)){
+            alert("Oops, that isn't on the board.");
+        }
+        else if (row < 0 || row >= model.boardSize || column < 0 || column >= model.boardSize){
+            alert("Oops, that's off the board!");
+        }
+        else{
+            return row + column;
+        }
+    }
+    return null;
+}
+
+function init(){
+    var fireButton = document.getElementById("fireButton");
+    fireButton.onclick = handleFireButton;
+    var guessInput = document.getElementById("guessInput");
+    guessInput.onkeypress = handleKeyPress;
+    model.generateShipLocations();
+}
+
+function handleKeyPress(e){
+    var fireButton = document.getElementById("fireButton");
+    if (e.KeyCode === 13){
+        fireButton.click();
+        return false;
+    }
+}
+
+function handleFireButton(){
+    var guessInput = document.getElementById("guessInput");
+    var guess = guessInput.value.toUpperCase();
+    controller.processGuess(guess);
+    guessInput.value = "";
+}
+window.onload = init;

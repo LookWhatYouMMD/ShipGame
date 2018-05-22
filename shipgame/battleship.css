@@ -1,3 +1,6 @@
+body{
+    background-color: black;
+}
 #board{
     position: relative;
     width: 1024px;
@@ -18,7 +21,7 @@ table{
     border-spacing: 0px;
 }
 td{
-    width: 94opx;
+    width: 94px;
     height: 94px;
 }
 form{
@@ -34,8 +37,8 @@ form input{
     font-size: 1em;
 }
 .hit{
-    background: url("image/ship.png") no-repeat center center
+    background: url(image/ship.png) no-repeat center center
 }
 .miss{
-    background: url("image/miss.png") no-repeat center center
+    background: url(image/miss.png) no-repeat center center
 }
